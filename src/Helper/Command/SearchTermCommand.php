@@ -62,24 +62,24 @@ final readonly class SearchTermCommand
             $result = $results[$i];
 
             if ($i === 0) {
-                $answer .= sprintf("*%s* \n%s", $result['title'], $result['body']);
+                $answer .= sprintf("*%s*\n\n%s", $result['title'], $result['body']);
 
                 if (count($results) > 1) {
                     $variants = [
-                        "\n\nТак же может быть полезно:\n",
-                        "\n\nЕщё я кое-что знаю про:\n",
-                        "\n\nВозможно будет полезно что-то из:\n",
-                        "\n\nЕщё может пригодиться:\n",
-                        "\n\nТакже можете спросить меня о:\n",
+                        "\n\nТак же может быть полезно:",
+                        "\n\nЕщё я кое-что знаю про:",
+                        "\n\nВозможно будет полезно что-то из:",
+                        "\n\nЕщё может пригодиться:",
+                        "\n\nТакже можете спросить меня о:",
                     ];
                     $answer .= $variants[array_rand($variants)];
                 }
             } else {
-                $answer .= sprintf("• `%s`", $result['title']);
+                $answer .= sprintf("\n• `%s`", $result['title']);
             }
         }
 
-        return $answer . "\n\nВаш [Помощник](tg://user?id={$this->botId})";
+        return $answer . "\n\nВаш 🤖[Помощник](tg://user?id={$this->botId})";
     }
 
     private function findTerms(string $query): array
@@ -89,8 +89,8 @@ final readonly class SearchTermCommand
                 'SELECT *, ts_rank_cd(tsv, query) AS rank '
                 . 'FROM core.article, websearch_to_tsquery(\'pg_catalog.russian\', :q) AS query '
                 . 'WHERE query @@ tsv '
-                . 'ORDER BY rank ASC '
-                . 'LIMIT 5',
+                . 'ORDER BY rank DESC '
+                . 'LIMIT 6',
                 [':q' => $query]
             )
             ->fetchAll();

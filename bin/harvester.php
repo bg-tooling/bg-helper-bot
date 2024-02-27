@@ -33,20 +33,26 @@ while (true) {
         ]);
         /*$updates = Request::getUpdates([
             'allowed_updates' => [Update::TYPE_MESSAGE],
-            'timeout' => 30
+            'timeout' => 90
         ]);*/
 
         if (is_iterable($updates->getResult())) {
             /** @var Update $update */
             foreach ($updates->getResult() as $update) {
                 if ($update->getUpdateType() !== 'message') {
+                    $logger->info('Update type is:' . $update->getUpdateType());
                     continue;
                 }
 
                 $message = $update->getMessage();
-                $messageText = $message->getText(true);
 
-                if ($message->getText(true) === null || $update->getMessage()->getType() !== 'text') {
+                if (
+                    $message->getText(true) === null
+                    || trim($message->getText(true)) === ''
+                    || !in_array($message->getType(), ['text', 'command', 'bot_command'])
+                ) {
+                    $logger->debug($message->getText(true));
+                    $logger->info('Message type is:' . $message->getType());
                     continue;
                 }
 
@@ -57,5 +63,5 @@ while (true) {
         $logger->critical($e->getMessage(), ['exception' => $e]);
     }
 
-    $logger->error('Im waiting updates...');
+    $logger->debug('Im waiting updates...');
 }
