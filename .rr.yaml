@@ -1,0 +1,24 @@
+version: '3'
+
+rpc:
+    listen: tcp://0.0.0.0:${QUEUE_PORT:-6001}
+
+server:
+    command: php /var/www/app/bin/carryall.php
+    relay: pipes
+
+jobs:
+    num_pollers: 64
+    timeout: 10
+    pipeline_size: 1000
+    pool:
+        num_workers: 16
+        allocate_timeout: 90s
+        destroy_timeout: 30s
+    consume: [ "updates" ]
+    pipelines:
+        updates:
+            driver: memory
+            config:
+                priority: 10
+                prefetch: 100
